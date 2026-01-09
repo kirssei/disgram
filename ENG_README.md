@@ -32,7 +32,7 @@ python3 -m venv env
 poetry install
 ```
 
-4. Создать файл `.env` на основе файла `env_template` и заполнить необходимые переменные
+4. Create a .env file based on the env_template file and fill in the required variables
 
 | Variable | Description |
 |---|---|
