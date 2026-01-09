@@ -56,23 +56,22 @@ class Disgram:
 
     def _emoji_replacement(self, content: str) -> str:
         pattern = r'<tg-emoji emoji-id="(\d+)">.*?</tg-emoji>'
+
         def replacer(match):
             emoji_id = match.group(1)
             return self.EMOJI_MAP.get(emoji_id, "")
+
         return re.sub(pattern, replacer, content)
 
     def _html_replacement(self, content: str):
-        tag_map = {
-            "b": "**",
-            "i": "*",
-            "u": "__",
-            "s": "~~"
-        }
+        tag_map = {"b": "**", "i": "*", "u": "__", "s": "~~"}
 
         for tag, md in tag_map.items():
-            pattern = fr"<{tag}>(.*?)</{tag}>"
-            content = re.sub(pattern, lambda m: f"{md}{m.group(1)}{md}", content, flags=re.DOTALL)
-        
+            pattern = rf"<{tag}>(.*?)</{tag}>"
+            content = re.sub(
+                pattern, lambda m: f"{md}{m.group(1)}{md}", content, flags=re.DOTALL
+            )
+
         return content
 
     async def handle_channel_post(self, message: Message):
@@ -85,54 +84,38 @@ class Disgram:
         content = message.html_text or " "
 
         if self.EMOJI_MAP:
-            content = self._emoji_replacement(
-                content=content
-            )
-        
-        content = self._html_replacement(
-            content=content
-        )
+            content = self._emoji_replacement(content=content)
+
+        content = self._html_replacement(content=content)
 
         file, filename = await self._extract_media(message)
 
         dc_message = await self._send_to_discord(
-            content=content,
-            file=file,
-            filename=filename
+            content=content, file=file, filename=filename
         )
 
         await dc_message.create_thread(
-            name=self.DISCORD_THREAD_NAME,
-            auto_archive_duration=1440
+            name=self.DISCORD_THREAD_NAME, auto_archive_duration=1440
         )
 
     async def _extract_media(self, message: Message):
         if message.photo:
             tg_file = await self.bot.get_file(message.photo[-1].file_id)
-            return (
-                await self.bot.download_file(tg_file.file_path),
-                "photo.jpg"
-            )
+            return (await self.bot.download_file(tg_file.file_path), "photo.jpg")
 
         if message.video:
             tg_file = await self.bot.get_file(message.video.file_id)
-            return (
-                await self.bot.download_file(tg_file.file_path),
-                "video.mp4"
-            )
+            return (await self.bot.download_file(tg_file.file_path), "video.mp4")
 
         if message.animation:
             tg_file = await self.bot.get_file(message.animation.file_id)
-            return (
-                await self.bot.download_file(tg_file.file_path),
-                "animation.gif"
-            )
+            return (await self.bot.download_file(tg_file.file_path), "animation.gif")
 
         if message.document:
             tg_file = await self.bot.get_file(message.document.file_id)
             return (
                 await self.bot.download_file(tg_file.file_path),
-                message.document.file_name
+                message.document.file_name,
             )
 
         return None, None
@@ -140,15 +123,14 @@ class Disgram:
     async def _send_to_discord(self, content: str, file, filename: str | None):
         if file:
             return await self.discord_channel.send(
-                content=content,
-                file=discord.File(fp=file, filename=filename)
+                content=content, file=discord.File(fp=file, filename=filename)
             )
         return await self.discord_channel.send(content)
 
     async def run(self):
         await asyncio.gather(
             self.dp.start_polling(self.bot),
-            self.discord_client.start(self.DISCORD_TOKEN)
+            self.discord_client.start(self.DISCORD_TOKEN),
         )
 
 
