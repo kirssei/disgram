@@ -5,7 +5,7 @@ Discord/Telegram bots for forwarding posts from a Telegram channel to a Discord 
 Each post is published as a single message (text + media), and a thread for comments is automatically created under it in Discord.
 
 🌐 **Language:**  
-- 🇷🇺 [Русский] (README.md)
+- 🇷🇺 [Русский](README.md)
 - 🇬🇧 [English](ENG_README.md)
 
 ## 📦 **Requirements**
