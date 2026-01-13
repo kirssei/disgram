@@ -42,6 +42,7 @@ poetry install
 | DISCORD_CHANNEL_ID | ID of the Discord channel where posts from the Telegram channel will be sent. Can be obtained by right-clicking on the channel |
 | DISCORD_THREAD_NAME | Name of the thread that will be created for the message |
 | EMOJI_MAP | Mapping of emojis from a Telegram emoji pack to emojis on the Discord server |
+| STOP_WORDS | When a word from this list is detected in a Telegram post, it is not sent to the Discord channel. **Words must be entered in lowercase and separated by a comma and a space**|
 
 ## 🚀 Running
 ```bash

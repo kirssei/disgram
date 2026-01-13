@@ -42,6 +42,8 @@ class Disgram:
         str_emoji_map = os.getenv("EMOJI_MAP")
         self.EMOJI_MAP = json.loads(str_emoji_map) if str_emoji_map else None
 
+        self.STOP_WORDS = os.getenv("STOP_WORDS").split(", ")
+
     def _register_handlers(self):
         @self.discord_client.event
         async def on_ready():
@@ -53,50 +55,6 @@ class Disgram:
         @self.dp.channel_post()
         async def channel_post(message: Message):
             await self.handle_channel_post(message)
-
-    def _emoji_replacement(self, content: str) -> str:
-        pattern = r'<tg-emoji emoji-id="(\d+)">.*?</tg-emoji>'
-
-        def replacer(match):
-            emoji_id = match.group(1)
-            return self.EMOJI_MAP.get(emoji_id, "")
-
-        return re.sub(pattern, replacer, content)
-
-    def _html_replacement(self, content: str):
-        tag_map = {"b": "**", "i": "*", "u": "__", "s": "~~"}
-
-        for tag, md in tag_map.items():
-            pattern = rf"<{tag}>(.*?)</{tag}>"
-            content = re.sub(
-                pattern, lambda m: f"{md}{m.group(1)}{md}", content, flags=re.DOTALL
-            )
-
-        return content
-
-    async def handle_channel_post(self, message: Message):
-        if message.chat.id != self.TELEGRAM_CHANNEL_ID:
-            return
-
-        if not self.discord_channel:
-            return
-
-        content = message.html_text or " "
-
-        if self.EMOJI_MAP:
-            content = self._emoji_replacement(content=content)
-
-        content = self._html_replacement(content=content)
-
-        file, filename = await self._extract_media(message)
-
-        dc_message = await self._send_to_discord(
-            content=content, file=file, filename=filename
-        )
-
-        await dc_message.create_thread(
-            name=self.DISCORD_THREAD_NAME, auto_archive_duration=1440
-        )
 
     async def _extract_media(self, message: Message):
         if message.photo:
@@ -127,12 +85,61 @@ class Disgram:
             )
         return await self.discord_channel.send(content)
 
+    def _emoji_replacement(self, content: str) -> str:
+        pattern = r'<tg-emoji emoji-id="(\d+)">.*?</tg-emoji>'
+
+        def replacer(match):
+            emoji_id = match.group(1)
+            return self.EMOJI_MAP.get(emoji_id, "")
+
+        return re.sub(pattern, replacer, content)
+
+    def _html_replacement(self, content: str):
+        tag_map = {"b": "**", "i": "*", "u": "__", "s": "~~"}
+
+        for tag, md in tag_map.items():
+            pattern = rf"<{tag}>(.*?)</{tag}>"
+            content = re.sub(
+                pattern, lambda m: f"{md}{m.group(1)}{md}", content, flags=re.DOTALL
+            )
+
+        return content
+
+    async def handle_channel_post(self, message: Message):
+        if message.chat.id != self.TELEGRAM_CHANNEL_ID:
+            return
+
+        if not self.discord_channel:
+            return
+
+        content = message.html_text or " "
+
+        can_send = True
+        for word in self.STOP_WORDS:
+            if word in content.lower():
+                can_send = False
+
+        if can_send:
+            if self.EMOJI_MAP:
+                content = self._emoji_replacement(content=content)
+
+            content = self._html_replacement(content=content)
+
+            file, filename = await self._extract_media(message)
+
+            dc_message = await self._send_to_discord(
+                content=content, file=file, filename=filename
+            )
+
+            await dc_message.create_thread(
+                name=self.DISCORD_THREAD_NAME, auto_archive_duration=1440
+            )
+
     async def run(self):
         await asyncio.gather(
             self.dp.start_polling(self.bot),
             self.discord_client.start(self.DISCORD_TOKEN),
         )
-
 
 if __name__ == "__main__":
     bridge = Disgram()
