@@ -2,6 +2,7 @@ import os
 import re
 import json
 import asyncio
+import logging
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -10,13 +11,15 @@ from aiogram.types import Message
 
 import discord
 
+from modules.settings import Settings
+
 
 class Disgram:
     def __init__(self):
-        self._load_env()
+        self.settings = Settings()
 
         # Telegram
-        self.bot = Bot(self.TELEGRAM_TOKEN)
+        self.bot = Bot(self.settings.TELEGRAM_TOKEN)
         self.dp = Dispatcher()
 
         # Discord
@@ -27,28 +30,11 @@ class Disgram:
         # register handlers
         self._register_handlers()
 
-    def _load_env(self):
-        base_dir = Path(__file__).resolve().parent
-        load_dotenv(base_dir / ".env")
-
-        self.TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-        self.DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-
-        self.TELEGRAM_CHANNEL_ID = int(os.getenv("TELEGRAM_CHANNEL_ID"))
-        self.DISCORD_CHANNEL_ID = int(os.getenv("DISCORD_CHANNEL_ID"))
-
-        self.DISCORD_THREAD_NAME = os.getenv("DISCORD_THREAD_NAME") or "Comments"
-
-        str_emoji_map = os.getenv("EMOJI_MAP")
-        self.EMOJI_MAP = json.loads(str_emoji_map) if str_emoji_map else None
-
-        self.STOP_WORDS = os.getenv("STOP_WORDS").split(", ")
-
     def _register_handlers(self):
         @self.discord_client.event
         async def on_ready():
             self.discord_channel = self.discord_client.get_channel(
-                self.DISCORD_CHANNEL_ID
+                self.settings.DISCORD_CHANNEL_ID
             )
             print(f"[Discord] Ready: {self.discord_channel}")
 
@@ -90,7 +76,7 @@ class Disgram:
 
         def replacer(match):
             emoji_id = match.group(1)
-            return self.EMOJI_MAP.get(emoji_id, "")
+            return self.settings.EMOJI_MAP.get(emoji_id, "")
 
         return re.sub(pattern, replacer, content)
 
@@ -106,7 +92,7 @@ class Disgram:
         return content
 
     async def handle_channel_post(self, message: Message):
-        if message.chat.id != self.TELEGRAM_CHANNEL_ID:
+        if message.chat.id != self.settings.TELEGRAM_CHANNEL_ID:
             return
 
         if not self.discord_channel:
@@ -115,12 +101,12 @@ class Disgram:
         content = message.html_text or " "
 
         can_send = True
-        for word in self.STOP_WORDS:
+        for word in self.settings.STOP_WORDS:
             if word in content.lower():
                 can_send = False
 
         if can_send:
-            if self.EMOJI_MAP:
+            if self.settings.EMOJI_MAP:
                 content = self._emoji_replacement(content=content)
 
             content = self._html_replacement(content=content)
@@ -132,13 +118,13 @@ class Disgram:
             )
 
             await dc_message.create_thread(
-                name=self.DISCORD_THREAD_NAME, auto_archive_duration=1440
+                name=self.settings.DISCORD_THREAD_NAME, auto_archive_duration=1440
             )
 
     async def run(self):
         await asyncio.gather(
             self.dp.start_polling(self.bot),
-            self.discord_client.start(self.DISCORD_TOKEN),
+            self.discord_client.start(self.settings.DISCORD_TOKEN),
         )
 
 if __name__ == "__main__":

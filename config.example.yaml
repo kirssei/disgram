@@ -1,0 +1,19 @@
+telegram:
+  token: "1234567890:AAAABBBBCCCC"
+  channel_id: -1234567890
+
+discord:
+  token: "AAAABBBBCCCC"
+  channel_id: 1234567890
+  thread_name: "Комментарии"
+
+emoji_map: # {"telegram_emoji_id": "discord_emoji_id"}
+  "5432167890": "<:discord_emoji_id:1234567890>"
+  "1234567890": "<:next_emoji:1234567890>"
+  "0987654321": "<:last_emoji:1234567890>"
+
+filters:
+  stop_words:
+    - стоп
+    - stop
+    - стопstop
