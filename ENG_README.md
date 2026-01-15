@@ -1,12 +1,19 @@
 # Disgram
 
-Discord/Telegram bots for forwarding posts from a Telegram channel to a Discord channel on a server.
+Discord/Telegram bots for forwarding posts from a Telegram channel to a Discord server channel while preserving visual formatting and custom emojis.
 
 Each post is published as a single message (text + media), and a thread for comments is automatically created under it in Discord.
 
 🌐 **Language:**  
 - 🇷🇺 [Русский](README.md)
 - 🇬🇧 [English](ENG_README.md)
+
+## ✨ Features
+- 🔁 Forward posts from a Telegram channel to a Discord channel
+- 😀 1:1 custom emoji mapping from Telegram → Discord
+- 🎨 Preserve Markdown formatting
+- 🧵 Automatically create a comment thread under each post
+- 🚫 Filter posts using stop words
 
 ## 📦 **Requirements**
 - Python 3.10+
@@ -32,7 +39,7 @@ python3 -m venv env
 poetry install
 ```
 
-4. Create a .env file based on the env_template file and fill in the required variables
+4. Create a `config.yaml` file based on the `config.example.yaml` file and fill in the required variables
 
 | Variable | Description |
 |---|---|
