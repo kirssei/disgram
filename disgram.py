@@ -1,13 +1,18 @@
-import re
 import asyncio
+
+import discord
 
 from aiogram import Bot, Dispatcher
 from aiogram.types import Message
 
-import discord
 
 from modules import logger
 from modules import settings
+from modules.utils import (
+    html_replacement,
+    emoji_replacement,
+)
+from modules.media import extract_media
 
 
 class Disgram:
@@ -40,54 +45,12 @@ class Disgram:
         async def channel_post(message: Message):
             await self.handle_channel_post(message)
 
-    async def _extract_media(self, message: Message):
-        if message.photo:
-            tg_file = await self.bot.get_file(message.photo[-1].file_id)
-            return (await self.bot.download_file(tg_file.file_path), "photo.jpg")
-
-        if message.video:
-            tg_file = await self.bot.get_file(message.video.file_id)
-            return (await self.bot.download_file(tg_file.file_path), "video.mp4")
-
-        if message.animation:
-            tg_file = await self.bot.get_file(message.animation.file_id)
-            return (await self.bot.download_file(tg_file.file_path), "animation.gif")
-
-        if message.document:
-            tg_file = await self.bot.get_file(message.document.file_id)
-            return (
-                await self.bot.download_file(tg_file.file_path),
-                message.document.file_name,
-            )
-
-        return None, None
-
     async def _send_to_discord(self, content: str, file, filename: str | None):
         if file:
             return await self.discord_channel.send(
                 content=content, file=discord.File(fp=file, filename=filename)
             )
         return await self.discord_channel.send(content)
-
-    def _emoji_replacement(self, content: str) -> str:
-        pattern = r'<tg-emoji emoji-id="(\d+)">.*?</tg-emoji>'
-
-        def replacer(match):
-            emoji_id = match.group(1)
-            return settings.EMOJI_MAP.get(emoji_id, "")
-
-        return re.sub(pattern, replacer, content)
-
-    def _html_replacement(self, content: str):
-        tag_map = {"b": "**", "i": "*", "u": "__", "s": "~~"}
-
-        for tag, md in tag_map.items():
-            pattern = rf"<{tag}>(.*?)</{tag}>"
-            content = re.sub(
-                pattern, lambda m: f"{md}{m.group(1)}{md}", content, flags=re.DOTALL
-            )
-
-        return content
 
     async def handle_channel_post(self, message: Message):
         if message.chat.id != settings.TELEGRAM_CHANNEL_ID:
@@ -112,11 +75,15 @@ class Disgram:
 
         if can_send:
             if settings.EMOJI_MAP:
-                content = self._emoji_replacement(content=content)
+                content = emoji_replacement(
+                    content=content, emoji_map=settings.EMOJI_MAP
+                )
 
-            content = self._html_replacement(content=content)
+            content = html_replacement(content=content)
 
-            file, filename = await self._extract_media(message)
+            file, filename = await extract_media(
+                bot=self.bot, message=message
+            )
 
             dc_message = await self._send_to_discord(
                 content=content, file=file, filename=filename
