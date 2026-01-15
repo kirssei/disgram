@@ -1,5 +1,3 @@
-import os
-import json
 import yaml
 
 from pathlib import Path
@@ -24,3 +22,5 @@ class Settings:
         self.EMOJI_MAP = cfg["emoji_map"]
 
         self.STOP_WORDS = cfg["filters"]["stop_words"]
+
+settings = Settings()
