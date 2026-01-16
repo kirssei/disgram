@@ -17,7 +17,10 @@ class Settings:
 
         self.DISCORD_TOKEN = cfg["discord"]["token"]
         self.DISCORD_CHANNEL_ID = cfg["discord"]["channel_id"]
+        self.DISCORD_USE_THREAD = cfg["discord"]["use_thread"]
         self.DISCORD_THREAD_NAME = cfg["discord"]["thread_name"]
+        self.DISCORD_USE_ROLE = cfg["discord"]["use_role"]
+        self.DISCORD_ROLES_PING = cfg["discord"]["roles_ping"]
 
         self.EMOJI_MAP = cfg["emoji_map"]
 

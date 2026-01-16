@@ -81,6 +81,9 @@ class Disgram:
 
             content = html_replacement(content=content)
 
+            if settings.DISCORD_USE_ROLE:
+                content = settings.DISCORD_ROLES_PING + "\n\n" + content
+
             file, filename = await extract_media(
                 bot=self.bot, message=message
             )
@@ -89,14 +92,14 @@ class Disgram:
                 content=content, file=file, filename=filename
             )
 
-            await dc_message.create_thread(
-                name=settings.DISCORD_THREAD_NAME, auto_archive_duration=1440
-            )
+            if settings.DISCORD_USE_THREAD:
+                await dc_message.create_thread(
+                    name=settings.DISCORD_THREAD_NAME, auto_archive_duration=1440
+                )
 
             logger.info(
                 "Send message in Discord channel: "
-                f"Messaged ID: {dc_message.id}; Content: {content}; "
-                "Created thread"
+                f"Messaged ID: {dc_message.id}; Content: {content};"
             )
 
     async def run(self):

@@ -5,7 +5,10 @@ telegram:
 discord:
   token: "AAAABBBBCCCC"
   channel_id: 1234567890
+  use_thread: true
   thread_name: "Комментарии"
+  use_role: true
+  roles_ping: "<@&123457789>" #role id
 
 emoji_map: # {"telegram_emoji_id": "discord_emoji_id"}
   "5432167890": "<:discord_emoji_id:1234567890>"
