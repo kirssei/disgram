@@ -47,7 +47,10 @@ poetry install
 | DISCORD_TOKEN | Discord bot token. Can be obtained at [Discord Dev](https://discord.com/developers/) |
 | TELEGRAM_CHANNEL_ID | ID of the Telegram channel from which posts should be forwarded. Can be obtained via the @JsonDumpBot |
 | DISCORD_CHANNEL_ID | ID of the Discord channel where posts from the Telegram channel will be sent. Can be obtained by right-clicking on the channel |
+| USE_THREAD | Create threads for comments? |
 | DISCORD_THREAD_NAME | Name of the thread that will be created for the message |
+| USE_ROLE | Use role pings? |
+| ROLES_PING | Which roles should be pinged when sending a post to a Discord channel |
 | EMOJI_MAP | Mapping of emojis from a Telegram emoji pack to emojis on the Discord server |
 | STOP_WORDS | When a word from this list is detected in a Telegram post, it is not sent to the Discord channel. **Words must be entered in lowercase and separated by a comma and a space**|
 
