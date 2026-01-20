@@ -47,9 +47,9 @@ poetry install
 | DISCORD_TOKEN | Токен бота Discord. Можно получить в [Discord Dev](https://discord.com/developers/)|
 | TELEGRAM_CHANNEL_ID | ID Telegram канал откуда надо пересылать посты. Можно получить через бота @JsonDumpBot|
 | DISCORD_CHANNEL_ID | ID Discord канала куда отправлять посты из Telegram канала. Можно получить через клик правой кнопки мыши по каналу |
-| USE_THREAD | Создавать треды для комментраиев? |
+| USE_THREAD | Создавать треды для комментариев? |
 | DISCORD_THREAD_NAME | Название ветки, которая будет создаваться к сообщению |
-| USE_ROLE | Использовать пинг ролей |
+| USE_ROLE | Использовать пинг ролей? |
 | ROLES_PING | Какие роли необходимо пинговать при отправке поста в канал Discord |
 | EMOJI_MAP | Мапинг emoji с Telegram пака с emoji Discord сервера |
 | STOP_WORDS | При обнаружении слова из этого списка в тексте поста Telegram, он не отправляется в Discord канал. **Слова вписываются с маленькой буквы и через запятую с пробелом**|
