@@ -1,0 +1,17 @@
+build/bin
+node_modules
+frontend/dist
+
+# Wails build output
+build/bin/
+
+# Bundled Python
+_internal/
+
+# Wails autogenerate
+frontend/wailsjs/
+frontend/package.json.md5
+frontend/dist/
+
+# Go
+*.exe

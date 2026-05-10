@@ -41,6 +41,12 @@ class Disgram:
             )
             logger.info(f"Disgram to Discord Channel: {self.discord_channel}")
 
+            guild = self.discord_client.guilds[0]
+            
+            logger.info("Discord Server Emoji")
+            for emoji in guild.emojis:
+                logger.info(f"Emoji Discord ID: {emoji.id}")
+
         @self.dp.channel_post()
         async def channel_post(message: Message):
             await self.handle_channel_post(message)
