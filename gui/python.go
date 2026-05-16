@@ -14,24 +14,20 @@ func findInternalDir() string {
 		return "_internal"
 	}
 
-	os.WriteFile("/tmp/disgram_debug.txt", []byte("exe: "+exe+"\n"), 0644)
+	dir := filepath.Dir(exe)
 
-	resolved, _ := filepath.EvalSymlinks(exe)
-	os.WriteFile("/tmp/disgram_debug.txt",
-		[]byte("exe: "+exe+"\nresolved: "+resolved+"\n"), 0644)
-
-	dir := filepath.Dir(resolved)
 	if runtime.GOOS == "darwin" {
 		if strings.Contains(dir, ".app/Contents/MacOS") {
+			inBundle := filepath.Join(dir, "../_internal")
+			inBundle = filepath.Clean(inBundle)
+			if _, err := os.Stat(inBundle); err == nil {
+				return inBundle
+			}
 			dir = filepath.Join(dir, "../../..")
 		}
 	}
 
-	result := filepath.Join(dir, "_internal")
-	os.WriteFile("/tmp/disgram_debug.txt",
-		[]byte("exe: "+exe+"\nresolved: "+resolved+"\nresult: "+result+"\n"), 0644)
-
-	return result
+	return filepath.Join(dir, "_internal")
 }
 
 func (a *App) getPythonExe() (string, error) {
