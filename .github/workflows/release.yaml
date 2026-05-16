@@ -26,12 +26,6 @@ jobs:
             python-url: "https://github.com/astral-sh/python-build-standalone/releases/download/20240814/cpython-3.12.5+20240814-x86_64-unknown-linux-gnu-install_only.tar.gz"
             python-archive: python.tar.gz
 
-          # macOS Intel
-          - os: macos-13
-            name: macos-x64
-            python-url: "https://github.com/astral-sh/python-build-standalone/releases/download/20240814/cpython-3.12.5+20240814-x86_64-apple-darwin-install_only.tar.gz"
-            python-archive: python.tar.gz
-
           # macOS Apple Silicon
           - os: macos-14
             name: macos-arm64
@@ -180,22 +174,6 @@ jobs:
         with:
           name: internal-macos-arm64
           path: release/_internal/
-
-      - name: Download _internal x64 (macOS)
-        if: matrix.os == 'macos-14'
-        uses: actions/download-artifact@v4
-        with:
-          name: internal-macos-x64
-          path: release/_internal_x64/
-
-      - name: Create macOS Universal Python binary
-        if: matrix.os == 'macos-14'
-        run: |
-          lipo -create \
-            release/_internal_x64/python/bin/python3 \
-            release/_internal/python/bin/python3 \
-            -output release/_internal/python/bin/python3
-          chmod +x release/_internal/python/bin/python3
 
       - name: Restore execute permissions (Unix)
         if: matrix.os != 'windows-latest'
