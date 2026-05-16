@@ -13,6 +13,12 @@ func findInternalDir() string {
 	if err != nil {
 		return "_internal"
 	}
+
+	exe, err = filepath.EvalSymlinks(exe)
+	if err != nil {
+		return "_internal"
+	}
+
 	dir := filepath.Dir(exe)
 	if runtime.GOOS == "darwin" {
 		if strings.Contains(dir, ".app/Contents/MacOS") {
