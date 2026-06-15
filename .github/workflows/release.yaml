@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "v*"
+    branches:
+      - gui-go
   workflow_dispatch:
 
 jobs:
@@ -24,12 +26,6 @@ jobs:
             python-url: "https://github.com/astral-sh/python-build-standalone/releases/download/20240814/cpython-3.12.5+20240814-x86_64-unknown-linux-gnu-install_only.tar.gz"
             python-archive: python.tar.gz
 
-          # macOS Intel
-          - os: macos-13
-            name: macos-x64
-            python-url: "https://github.com/astral-sh/python-build-standalone/releases/download/20240814/cpython-3.12.5+20240814-x86_64-apple-darwin-install_only.tar.gz"
-            python-archive: python.tar.gz
-
           # macOS Apple Silicon
           - os: macos-14
             name: macos-arm64
@@ -46,15 +42,17 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Install Poetry
-        run: pip install poetry
+        shell: bash
+        run: |
+          pip install poetry
+          poetry self add poetry-plugin-export
 
       - name: Export dependencies from pyproject.toml
+        shell: bash
         run: |
           poetry export \
             --without-hashes \
-            --without dev \
             -f requirements.txt \
             -o requirements.txt
 
@@ -177,22 +175,6 @@ jobs:
           name: internal-macos-arm64
           path: release/_internal/
 
-      - name: Download _internal x64 (macOS)
-        if: matrix.os == 'macos-14'
-        uses: actions/download-artifact@v4
-        with:
-          name: internal-macos-x64
-          path: release/_internal_x64/
-
-      - name: Create macOS Universal Python binary
-        if: matrix.os == 'macos-14'
-        run: |
-          lipo -create \
-            release/_internal_x64/python/bin/python3 \
-            release/_internal/python/bin/python3 \
-            -output release/_internal/python/bin/python3
-          chmod +x release/_internal/python/bin/python3
-
       - name: Restore execute permissions (Unix)
         if: matrix.os != 'windows-latest'
         run: chmod +x release/_internal/python/bin/python3
@@ -215,10 +197,12 @@ jobs:
 
           if [[ "${{ matrix.os }}" == "macos-14" ]]; then
             cp -r gui/build/bin/*.app "$DIST_DIR/"
+            APP_NAME=$(ls "$DIST_DIR" | grep ".app")
+            cp -r release/_internal "$DIST_DIR/$APP_NAME/Contents/"
           else
             cp gui/build/bin/${{ matrix.binary-name }} "$DIST_DIR/"
+            cp -r release/_internal "$DIST_DIR/"
           fi
-          cp -r release/_internal "$DIST_DIR/"
 
           cd dist
           if [[ "${{ matrix.archive-ext }}" == "zip" ]]; then

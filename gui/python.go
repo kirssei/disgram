@@ -13,12 +13,20 @@ func findInternalDir() string {
 	if err != nil {
 		return "_internal"
 	}
+
 	dir := filepath.Dir(exe)
+
 	if runtime.GOOS == "darwin" {
 		if strings.Contains(dir, ".app/Contents/MacOS") {
+			inBundle := filepath.Join(dir, "../_internal")
+			inBundle = filepath.Clean(inBundle)
+			if _, err := os.Stat(inBundle); err == nil {
+				return inBundle
+			}
 			dir = filepath.Join(dir, "../../..")
 		}
 	}
+
 	return filepath.Join(dir, "_internal")
 }
 
