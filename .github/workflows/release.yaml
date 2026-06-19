@@ -87,19 +87,21 @@ jobs:
         run: |
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             PYTHON="_internal/python/python.exe"
+            TARGET="_internal/python/Lib/site-packages"
           else
             PYTHON="_internal/python/bin/python3"
+            TARGET="_internal/site-packages"
           fi
 
-          mkdir -p _internal/site-packages
+          mkdir -p "$TARGET"
 
           $PYTHON -m pip install \
-            --target _internal/site-packages \
+            --target "$TARGET" \
             --requirement requirements.txt \
             --quiet
 
           $PYTHON -m pip install \
-            --target _internal/site-packages \
+            --target "$TARGET" \
             "py-cord==2.6.1" \
             --upgrade \
             --quiet
