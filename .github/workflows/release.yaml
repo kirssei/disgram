@@ -98,6 +98,12 @@ jobs:
             --requirement requirements.txt \
             --quiet
 
+          $PYTHON -m pip install \
+            --target _internal/site-packages \
+            "py-cord==2.6.1" \
+            --upgrade \
+            --quiet
+
       - name: Copy project scripts
         shell: bash
         run: |
