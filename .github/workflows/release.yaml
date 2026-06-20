@@ -75,10 +75,20 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
-          # Строка "import site" разрешает Python искать пакеты в site-packages
-          echo "import site" >> _internal/python/python312._pth
+          PTH_FILE=$(ls _internal/python/python3*._pth 2>/dev/null | head -1)
 
-          # Скачиваем и запускаем официальный установщик pip
+          if [ -z "$PTH_FILE" ]; then
+            echo "Не найден .pth файл!"
+            ls _internal/python/
+            exit 1
+          fi
+
+          cat >> "$PTH_FILE" << 'EOF'
+          import site
+          ../site-packages
+          ..
+          EOF
+
           curl -L -o get-pip.py https://bootstrap.pypa.io/get-pip.py
           _internal/python/python.exe get-pip.py --no-warn-script-location --quiet
 
@@ -87,15 +97,23 @@ jobs:
         run: |
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             PYTHON="_internal/python/python.exe"
+            TARGET="_internal/python/Lib/site-packages"
           else
             PYTHON="_internal/python/bin/python3"
+            TARGET="_internal/site-packages"
           fi
 
-          mkdir -p _internal/site-packages
+          mkdir -p "$TARGET"
 
           $PYTHON -m pip install \
-            --target _internal/site-packages \
+            --target "$TARGET" \
             --requirement requirements.txt \
+            --quiet
+
+          $PYTHON -m pip install \
+            --target "$TARGET" \
+            "py-cord==2.6.1" \
+            --upgrade \
             --quiet
 
       - name: Copy project scripts
