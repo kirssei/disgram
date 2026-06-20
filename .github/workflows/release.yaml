@@ -75,7 +75,14 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
-          PTH_FILE=$(ls _internal/python/python3*.pth 2>/dev/null | head -1)
+          PTH_FILE=$(ls _internal/python/python3*._pth 2>/dev/null | head -1)
+
+          if [ -z "$PTH_FILE" ]; then
+            echo "Не найден .pth файл!"
+            ls _internal/python/
+            exit 1
+          fi
+
           cat >> "$PTH_FILE" << 'EOF'
           import site
           ../site-packages
