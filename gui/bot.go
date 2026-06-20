@@ -24,12 +24,13 @@ func (a *App) SaveAndRun(input ConfigInput) string {
 	if _, err := os.Stat(scriptPath); os.IsNotExist(err) {
 		return "error:disgram.py не найден в _internal/"
 	}
+	
 	sitePackages := filepath.Join(a.internalDir, "site-packages")
-
+	pythonPath := a.internalDir + string(os.PathListSeparator) + sitePackages
 	a.pythonProc = exec.Command(pythonExe, scriptPath)
 	a.pythonProc.Dir = a.internalDir
 	a.pythonProc.Env = append(os.Environ(),
-		"PYTHONPATH="+sitePackages,
+		"PYTHONPATH="+pythonPath,
 		"PYTHONNOUSERSITE=1",
 		"DISGRAM_CONFIG="+configPath,
 		"PYTHONUNBUFFERED=1",
