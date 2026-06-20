@@ -1,5 +1,4 @@
 package main
-
 import (
 	"bufio"
 	"fmt"
@@ -7,7 +6,6 @@ import (
 	"os/exec"
 	"path/filepath"
 )
-
 func (a *App) SaveAndRun(input ConfigInput) string {
 	if a.isRunning {
 		return "error:Бот уже запущен. Сначала останови его."
@@ -24,18 +22,29 @@ func (a *App) SaveAndRun(input ConfigInput) string {
 	if _, err := os.Stat(scriptPath); os.IsNotExist(err) {
 		return "error:disgram.py не найден в _internal/"
 	}
+
 	sitePackages := filepath.Join(a.internalDir, "site-packages")
+	pythonPath := a.internalDir + string(os.PathListSeparator) + sitePackages
+
+	// ВРЕМЕННЫЙ DEBUG — удалить после диагностики Windows PYTHONPATH
+	a.logMu.Lock()
+	a.logBuffer = append(a.logBuffer,
+		"out:DEBUG internalDir="+a.internalDir,
+		"out:DEBUG pythonPath="+pythonPath,
+		"out:DEBUG pythonExe="+pythonExe,
+		"out:DEBUG scriptPath="+scriptPath,
+	)
+	a.logMu.Unlock()
 
 	a.pythonProc = exec.Command(pythonExe, scriptPath)
 	a.pythonProc.Dir = a.internalDir
 	a.pythonProc.Env = append(os.Environ(),
-		"PYTHONPATH="+sitePackages,
+		"PYTHONPATH="+pythonPath,
 		"PYTHONNOUSERSITE=1",
 		"DISGRAM_CONFIG="+configPath,
 		"PYTHONUNBUFFERED=1",
 	)
 	setProcAttr(a.pythonProc)
-
 	stdout, err := a.pythonProc.StdoutPipe()
 	if err != nil {
 		return "error:Не удалось создать stdout pipe: " + err.Error()
@@ -44,16 +53,13 @@ func (a *App) SaveAndRun(input ConfigInput) string {
 	if err != nil {
 		return "error:Не удалось создать stderr pipe: " + err.Error()
 	}
-
 	a.logMu.Lock()
-	a.logBuffer = []string{}
+	a.logBuffer = append(a.logBuffer, "out:--- запуск бота ---")
 	a.logMu.Unlock()
-
 	if err := a.pythonProc.Start(); err != nil {
 		return "error:Не удалось запустить бота: " + err.Error()
 	}
 	a.isRunning = true
-
 	go func() {
 		scanner := bufio.NewScanner(stdout)
 		for scanner.Scan() {
@@ -71,10 +77,8 @@ func (a *App) SaveAndRun(input ConfigInput) string {
 		a.isRunning = false
 		a.appendLog("out:--- бот остановлен ---")
 	}()
-
 	return fmt.Sprintf("ok:Бот запущен (PID %d)", a.pythonProc.Process.Pid)
 }
-
 func (a *App) appendLog(line string) {
 	a.logMu.Lock()
 	defer a.logMu.Unlock()
@@ -83,7 +87,6 @@ func (a *App) appendLog(line string) {
 		a.logBuffer = a.logBuffer[len(a.logBuffer)-500:]
 	}
 }
-
 func (a *App) StopBot() string {
 	if !a.isRunning || a.pythonProc == nil {
 		return "error:Бот не запущен"
@@ -94,11 +97,9 @@ func (a *App) StopBot() string {
 	a.isRunning = false
 	return "ok:Бот остановлен"
 }
-
 func (a *App) IsRunning() bool {
 	return a.isRunning
 }
-
 func (a *App) GetLogs(offset int) []string {
 	a.logMu.Lock()
 	defer a.logMu.Unlock()
