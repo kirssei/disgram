@@ -2,8 +2,9 @@ import asyncio
 
 import discord
 
-from aiogram import Bot, Dispatcher
 from aiogram.types import Message
+from aiogram import Bot, Dispatcher
+from aiogram.client.session.aiohttp import AiohttpSession
 
 
 from modules import logger
@@ -19,7 +20,13 @@ class Disgram:
     def __init__(self):
 
         # Telegram
-        self.bot = Bot(settings.TELEGRAM_TOKEN)
+        # Session for proxy
+        if settings.TELEGRAM_PROXY:
+            session = AiohttpSession(proxy=settings.TELEGRAM_PROXY)
+        else:
+            session = None
+
+        self.bot = Bot(settings.TELEGRAM_TOKEN, session=session)
         self.dp = Dispatcher()
         logger.info("Telegram Bot started & connected! 🚀")
 

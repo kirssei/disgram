@@ -14,6 +14,7 @@ class Settings:
 
         self.TELEGRAM_TOKEN = cfg["telegram"]["token"]
         self.TELEGRAM_CHANNEL_ID = cfg["telegram"]["channel_id"]
+        self.TELEGRAM_PROXY = cfg["telegram"]["proxy"]
 
         self.DISCORD_TOKEN = cfg["discord"]["token"]
         self.DISCORD_CHANNEL_ID = cfg["discord"]["channel_id"]
