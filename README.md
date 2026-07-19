@@ -27,6 +27,8 @@ Discord/Telegram боты для передачи постов из Telegram к�
 
 Для более простой настройки локально, используйте GUI версию, скачав ее из раздела [Releases](https://github.com/kirssei/disgram/releases).
 
+*Если у вас MacOS и при попытке запуска выдается информации о повреждении, то запустите терминал и введите данную команду: `xattr -c /path/to/your/Disgram.app`*
+
 1. Клонировать репозиторий
 ```bash
 git clone https://github.com/kirssei/disgram

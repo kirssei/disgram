@@ -57,6 +57,7 @@ export default function FormPanel({ activeTab, form, set, toggle }) {
           <br></br>
           <Field label="Bot token" value={form.telegramToken} onChange={set("telegramToken")} mono placeholder="1234567890:AAH..." />
           <Field label="Channel ID" value={form.telegramChannelId} onChange={set("telegramChannelId")} placeholder="-1001234567890" />
+          <Field label="Прокси" value={form.telegramProxy} onChange={set("telegramProxy")} mono placeholder="socks5://127.0.0.1:5050" />
         </>}
 
         {activeTab === "discord" && <>
