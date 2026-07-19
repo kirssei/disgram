@@ -13,6 +13,7 @@ type Config struct {
 	Telegram struct {
 		Token     string `yaml:"token"`
 		ChannelID int64  `yaml:"channel_id"`
+		Proxy     string `yaml:"proxy"`
 	} `yaml:"telegram"`
 	Discord struct {
 		Token      string `yaml:"token"`
@@ -31,6 +32,7 @@ type Config struct {
 type ConfigInput struct {
 	TelegramToken     string `json:"telegramToken"`
 	TelegramChannelID string `json:"telegramChannelId"`
+	TelegramProxy     string `json:"telegramProxy"`
 	DiscordToken      string `json:"discordToken"`
 	DiscordChannelID  string `json:"discordChannelId"`
 	UseThread         bool   `json:"useThread"`
@@ -61,6 +63,7 @@ func (a *App) LoadConfig() *ConfigInput {
 	return &ConfigInput{
 		TelegramToken:     cfg.Telegram.Token,
 		TelegramChannelID: strconv.FormatInt(cfg.Telegram.ChannelID, 10),
+		TelegramProxy:     cfg.Telegram.Proxy,
 		DiscordToken:      cfg.Discord.Token,
 		DiscordChannelID:  strconv.FormatInt(cfg.Discord.ChannelID, 10),
 		UseThread:         cfg.Discord.UseThread,
@@ -108,6 +111,7 @@ func saveConfig(input ConfigInput, path string) error {
 
 	cfg.Telegram.Token = input.TelegramToken
 	cfg.Telegram.ChannelID = telegramID
+	cfg.Telegram.Proxy = input.TelegramProxy
 
 	cfg.Discord.Token = input.DiscordToken
 	cfg.Discord.ChannelID = discordID
