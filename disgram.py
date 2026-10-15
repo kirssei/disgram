@@ -1,3 +1,4 @@
+import sys
 import asyncio
 
 import discord
@@ -12,6 +13,8 @@ from modules import settings
 from modules.utils import (
     html_replacement,
     emoji_replacement,
+    dump_emoji_all,
+    save_emoji_dump,
 )
 from modules.media import extract_media
 
@@ -48,12 +51,6 @@ class Disgram:
             )
             logger.info(f"Disgram to Discord Channel: {self.discord_channel}")
 
-            guild = self.discord_client.guilds[0]
-            
-            logger.info("Discord Server Emoji")
-            for emoji in guild.emojis:
-                logger.info(f"Emoji Discord ID: {emoji.id}")
-
         @self.dp.channel_post()
         async def channel_post(message: Message):
             await self.handle_channel_post(message)
@@ -64,6 +61,22 @@ class Disgram:
                 content=content, file=discord.File(fp=file, filename=filename)
             )
         return await self.discord_channel.send(content)
+
+    async def dump_emoji(self):
+        await self.discord_client.login(settings.DISCORD_TOKEN)
+        try:
+            channel = await self.discord_client.fetch_channel(settings.DISCORD_CHANNEL_ID)
+            guild = await self.discord_client.fetch_guild(channel.guild.id)
+
+            discord_emoji, telegram_emoji = await dump_emoji_all(
+                telegram_bot=self.bot,
+                discord_server=guild,
+                telegram_pack_name=settings.TELEGRAM_EMOJI_PACK,
+            )
+            save_emoji_dump(settings.EMOJI_DUMP_PATH, discord_emoji, telegram_emoji)
+        finally:
+            await self.discord_client.close()
+            await self.bot.session.close()
 
     async def handle_channel_post(self, message: Message):
         if message.chat.id != settings.TELEGRAM_CHANNEL_ID:
@@ -123,4 +136,7 @@ class Disgram:
 
 if __name__ == "__main__":
     bridge = Disgram()
-    asyncio.run(bridge.run())
+    if len(sys.argv) > 1 and sys.argv[1] == "dump_emoji":
+        asyncio.run(bridge.dump_emoji())
+    else:
+        asyncio.run(bridge.run())
