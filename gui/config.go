@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -80,15 +82,22 @@ func (a *App) LoadConfig() *ConfigInput {
 
 func saveConfig(input ConfigInput, path string) error {
 	emojiMap := map[string]string{}
+	rawMap := strings.TrimSpace(input.EmojiMapRaw)
 
-	for _, line := range strings.Split(strings.TrimSpace(input.EmojiMapRaw), "\n") {
-		line = strings.TrimSpace(line)
-		if line == "" {
-			continue
+	if strings.HasPrefix(rawMap, "{") {
+		if err := json.Unmarshal([]byte(rawMap), &emojiMap); err != nil {
+			return fmt.Errorf("Emoji map: неверный JSON: %w", err)
 		}
-		parts := strings.SplitN(line, ":", 2)
-		if len(parts) == 2 {
-			emojiMap[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+	} else {
+		for _, line := range strings.Split(rawMap, "\n") {
+			line = strings.TrimSpace(line)
+			if line == "" {
+				continue
+			}
+			parts := strings.SplitN(line, ":", 2)
+			if len(parts) == 2 {
+				emojiMap[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+			}
 		}
 	}
 
