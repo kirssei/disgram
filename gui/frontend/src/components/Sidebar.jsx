@@ -1,10 +1,11 @@
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
 
 const TABS = [
-  { id: "telegram", label: "Telegram",  color: "#2AABEE" },
-  { id: "discord",  label: "Discord",   color: "#5865F2" },
-  { id: "emoji",    label: "Emoji map", color: "#F59E0B" },
-  { id: "filters",  label: "Фильтры",  color: "#EF4444" },
+  { id: "telegram",  label: "Telegram",    color: "#2AABEE" },
+  { id: "discord",   label: "Discord",     color: "#5865F2" },
+  { id: "emoji",     label: "Emoji map",   color: "#F59E0B" },
+  { id: "emojiDump", label: "Эмодзи паки", color: "#A855F7" },
+  { id: "filters",   label: "Фильтры",     color: "#EF4444" },
 ];
 
 const LINKS = [
