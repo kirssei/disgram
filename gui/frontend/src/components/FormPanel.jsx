@@ -1,5 +1,6 @@
 import Field from "./ui/Field";
 import Toggle from "./ui/Toggle";
+import EmojiMatcher from "./EmojiMatcher";
 
 const s = {
   col: { 
@@ -80,6 +81,8 @@ export default function FormPanel({ activeTab, form, set, toggle }) {
           <textarea style={s.textarea} value={form.emojiMapRaw} onChange={set("emojiMapRaw")}
             placeholder={"5432167890:<:emoji_name:1234567890>\n1234567890:<:other:9876543210>"} rows={7} />
         </>}
+
+        {activeTab === "emojiDump" && <EmojiMatcher form={form} set={set} />}
 
         {activeTab === "filters" && <>
           <div style={s.hint}>Сообщения содержащие стоп-слова не пересылаются. Перечисли через запятую.</div>

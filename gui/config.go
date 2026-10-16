@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -14,6 +16,7 @@ type Config struct {
 		Token     string `yaml:"token"`
 		ChannelID int64  `yaml:"channel_id"`
 		Proxy     string `yaml:"proxy"`
+		EmojiPack string `yaml:"emoji_pack"`
 	} `yaml:"telegram"`
 	Discord struct {
 		Token      string `yaml:"token"`
@@ -33,6 +36,7 @@ type ConfigInput struct {
 	TelegramToken     string `json:"telegramToken"`
 	TelegramChannelID string `json:"telegramChannelId"`
 	TelegramProxy     string `json:"telegramProxy"`
+	TelegramEmojiPack string `json:"telegramEmojiPack"`
 	DiscordToken      string `json:"discordToken"`
 	DiscordChannelID  string `json:"discordChannelId"`
 	UseThread         bool   `json:"useThread"`
@@ -64,6 +68,7 @@ func (a *App) LoadConfig() *ConfigInput {
 		TelegramToken:     cfg.Telegram.Token,
 		TelegramChannelID: strconv.FormatInt(cfg.Telegram.ChannelID, 10),
 		TelegramProxy:     cfg.Telegram.Proxy,
+		TelegramEmojiPack: cfg.Telegram.EmojiPack,
 		DiscordToken:      cfg.Discord.Token,
 		DiscordChannelID:  strconv.FormatInt(cfg.Discord.ChannelID, 10),
 		UseThread:         cfg.Discord.UseThread,
@@ -77,15 +82,22 @@ func (a *App) LoadConfig() *ConfigInput {
 
 func saveConfig(input ConfigInput, path string) error {
 	emojiMap := map[string]string{}
+	rawMap := strings.TrimSpace(input.EmojiMapRaw)
 
-	for _, line := range strings.Split(strings.TrimSpace(input.EmojiMapRaw), "\n") {
-		line = strings.TrimSpace(line)
-		if line == "" {
-			continue
+	if strings.HasPrefix(rawMap, "{") {
+		if err := json.Unmarshal([]byte(rawMap), &emojiMap); err != nil {
+			return fmt.Errorf("Emoji map: неверный JSON: %w", err)
 		}
-		parts := strings.SplitN(line, ":", 2)
-		if len(parts) == 2 {
-			emojiMap[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+	} else {
+		for _, line := range strings.Split(rawMap, "\n") {
+			line = strings.TrimSpace(line)
+			if line == "" {
+				continue
+			}
+			parts := strings.SplitN(line, ":", 2)
+			if len(parts) == 2 {
+				emojiMap[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+			}
 		}
 	}
 
@@ -112,6 +124,7 @@ func saveConfig(input ConfigInput, path string) error {
 	cfg.Telegram.Token = input.TelegramToken
 	cfg.Telegram.ChannelID = telegramID
 	cfg.Telegram.Proxy = input.TelegramProxy
+	cfg.Telegram.EmojiPack = input.TelegramEmojiPack
 
 	cfg.Discord.Token = input.DiscordToken
 	cfg.Discord.ChannelID = discordID
