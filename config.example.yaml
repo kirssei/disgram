@@ -2,6 +2,7 @@ telegram:
   token: "1234567890:AAAABBBBCCCC"
   channel_id: -1234567890
   proxy: socks5://127.0.0.1:5050
+  emoji_pack: "pack_name"
 
 discord:
   token: "AAAABBBBCCCC"

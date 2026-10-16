@@ -65,7 +65,7 @@ const s = {
 
 export default function App() {
   const [form, setForm] = useState({
-    telegramToken: "", telegramChannelId: "",
+    telegramToken: "", telegramChannelId: "", telegramEmojiPack: "",
     discordToken: "", discordChannelId: "",
     useThread: true, threadName: "Комментарии",
     useRole: false, rolesPing: "",
